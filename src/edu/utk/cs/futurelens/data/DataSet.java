@@ -46,16 +46,18 @@ import edu.utk.cs.futurelens.data.dictionary.Dictionary;
  * @author greg
  *
  */
-public class DataSet
+public class DataSet implements Cloneable
 {
 	// important stuff
 	private Dictionary globalDict;
 	private Hashtable<String, Dictionary> entityDict;
 	private ArrayList<DataElement> documents;
+	private ArrayList<DataElement> unchangedDocuments;
 	//private Hashtable<String, ArrayList<DataElement>> termList;
 
 	// maximum size of unknown document set
 	private final int unknownLength = 50;
+	
 	
 	// cached stuff
 	ArrayList<String> cachedEntities;
@@ -186,6 +188,7 @@ public class DataSet
 	
 	public ArrayList<DocumentSet> getDocumentsByDateRange(DateRange range)
 	{	
+		
 		ArrayList<DocumentSet> sets = new ArrayList<DocumentSet>();;
 		Date startDate, endDate, nextDate;
 		Calendar cStartDate;
@@ -272,6 +275,7 @@ public class DataSet
 			int curDoc = index;
 			
 			nextDate = startDate;
+			
 			while(nextDate.compareTo(endDate) <= 0)
 			{
 				// get the end of this span
@@ -485,6 +489,29 @@ public class DataSet
 		
 		return allDocs;
 		
+	}
+	public void createUnchangedDocuments() {
+		if(documents.size()<=unchangedDocuments.size()) {
+			return;
+		}
+		for(int i=0;i<documents.size();i++) {
+			unchangedDocuments.add(documents.get(i));
+		}
+		return;
+		
+	}
+	
+	public void trim(Date startDate,Date endDate) {
+		
+		
+		
+		for(int i=0;i<documents.size();i++) {
+			DataElement de = documents.get(i);
+			if(de.getDate().compareTo(startDate) < 0 || de.getDate().compareTo(endDate) > 0) {
+				documents.remove(i);
+				i--;
+			}
+		}
 	}
 	
 	// NOTE: the version below is faster, but I can't figure out how to make it handle

@@ -34,15 +34,23 @@ package edu.utk.cs.futurelens.data;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -53,6 +61,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.parser.ParseException;
 import edu.utk.cs.futurelens.data.parser.sgml.SGMLException;
 import edu.utk.cs.futurelens.data.parser.sgml.SGMLHandler;
@@ -73,6 +82,7 @@ public class FileLoader implements DataLoader {
 	private volatile boolean isOperationInProgress;
 	private volatile boolean isLoaded;
 	private volatile boolean isParsed;
+	private boolean isTrimmed=false;
 	private final int NUM_THREAD = Runtime.getRuntime().availableProcessors() * 2; // Play With this number to try and find
 										// the best performance
 										// Runtime.getRuntime().availableProcessors()
@@ -90,6 +100,7 @@ public class FileLoader implements DataLoader {
 	
 	public DataSet getDataSet() {
 		// only return if the set has been loaded and parsed
+		
 		if (isLoaded && isParsed)
 			return dataSet;
 
@@ -221,6 +232,58 @@ public class FileLoader implements DataLoader {
 		TextParser textParser = new TextParser();
 
 		sgmlParser.setForceLowerCase(true);
+		//trim dataSet
+		if(!isTrimmed) {
+			String path = FutureLens.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+	        String winLoc="";
+	        try {
+				winLoc = URLDecoder.decode(path, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+	        String name = winLoc + "Dates";
+			File dir = new File(name);
+			if (!dir.exists()) {
+				dir.mkdir();
+			}
+			name = winLoc + "Dates/Dates.txt";
+			if (!(new File(name).exists())) {
+				name = winLoc + "Dates/Dates.txt";
+			}
+			File dateFile=new File(name);
+			if(dateFile.exists()){
+			String dateString="";
+			//read the Date File
+			try (Scanner s = new Scanner(dateFile).useDelimiter("\\Z")) {
+				   dateString = s.next();
+				   s.close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			//Split the string
+				String dateFromString=dateString.substring(0,dateString.indexOf("|"));
+				String dateToString=dateString.substring(dateString.indexOf("|")+1,dateString.length());
+			//Format into Date variable
+				DateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+				Date dateFrom, dateTo;
+				
+				try {
+					dateFrom = format.parse(dateFromString);
+					dateTo= format.parse(dateToString);
+					dataSet.trim(dateFrom, dateTo);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+			}
+			else {
+				System.out.println("Date File not Found!");
+			}
+			isTrimmed=true;
+		}
 		try {
 			sgmlParser.parse(filedata, new SGMLHandler(dataSet, filename));
 		} catch (SGMLException se) {
