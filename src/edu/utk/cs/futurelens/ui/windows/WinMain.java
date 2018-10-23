@@ -122,7 +122,8 @@ public class WinMain implements IWindow {
 	private static Dictionary oldDict;
 	//new stuff for date restrictions
 	private DataSet restrictedDataSet;
-
+	private String dateFromString="";
+	private String dateToString="";
 	private volatile boolean isDialogOpen = false;
 	private volatile boolean isDataSetLoaded = false;
 
@@ -131,7 +132,12 @@ public class WinMain implements IWindow {
 	private MenuBar menuBar;
 	private GroupView gvOverview;
 	public ArrayList allCategories = new ArrayList();
-
+	
+	
+	public static ArrayList<Group> groups = new ArrayList<Group>();
+	public static CTabFolder tabs;
+	public static ArrayList<String> groupNames =new ArrayList<String>();
+	
 	public WinMain(Shell shell) {
 		parentShell = shell;
 	}
@@ -578,9 +584,11 @@ public class WinMain implements IWindow {
 
 					item.setText(gl.getGroup().getBaseName());
 					item.setControl(gv);
-
+					
+					groupNames.add(gl.getGroup().getBaseName());
 					// do stuff with the group
 					Group group = gl.getGroup();
+					groups.add(group);
 					gv.setDataSet(dataSet);
 					gv.setGroup(group);
 					/*
@@ -638,7 +646,7 @@ public class WinMain implements IWindow {
 					gc.fillRectangle(0, 0, 20, 20);
 					gc.dispose();
 					item.setImage(image);
-
+					tabs=tfGroups;
 					// show the new tab
 					tfGroups.setSelection(item);
 				} catch (Exception e) {
@@ -812,7 +820,8 @@ public class WinMain implements IWindow {
 	 */
 	private void startLoad(final DataLoader dl) {
 		final WinProgress wp = new WinProgress(shell);
-
+		this.datasetTrim();
+		final String load = "Loading Dates:   "+dateFromString+" - "+dateToString;
 		// load the window
 		FLInterface.getDisplay().syncExec(new Runnable() {
 			public void run() {
@@ -826,7 +835,7 @@ public class WinMain implements IWindow {
 				try {
 					// launch the monitoring thread
 					dl.startOperation();
-					wp.monitorDatasetProgress(dl, "Loading and Parsing data...");
+					wp.monitorDatasetProgress(dl,load ); //"Loading and Parsing data..."
 					dl.load(dl.getSourcePath());
 				} catch (Exception e) {
 					dl.cancelOperation();
@@ -920,8 +929,8 @@ public class WinMain implements IWindow {
 				e.printStackTrace();
 			}
 		//Split the string
-			String dateFromString=dateString.substring(0,dateString.indexOf("|"));
-			String dateToString=dateString.substring(dateString.indexOf("|")+1,dateString.length());
+			 dateFromString=dateString.substring(0,dateString.indexOf("|"));
+			dateToString=dateString.substring(dateString.indexOf("|")+1,dateString.length());
 		//Format into Date variable
 			DateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
 			Date dateFrom, dateTo;
@@ -930,12 +939,10 @@ public class WinMain implements IWindow {
 				dateFrom = format.parse(dateFromString);
 				dateTo= format.parse(dateToString);
 				this.dataSet.trim(dateFrom, dateTo);
-				System.out.println("Removing Dates Outside of The Range:");
-				System.out.println(dateFrom);
-				System.out.println(dateTo);
+				
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+			//	e.printStackTrace(); removed this for cleanliness reasons
 			}
 			
 			

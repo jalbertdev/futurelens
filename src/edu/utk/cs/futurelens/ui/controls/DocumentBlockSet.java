@@ -201,9 +201,6 @@ public class DocumentBlockSet extends Composite
 				dateFrom = format.parse(dateFromString);
 				dateTo= format.parse(dateToString);
 				this.dataSet.trim(dateFrom, dateTo);
-				System.out.println("Removing Dates Outside of The Range:");
-				System.out.println(dateFrom);
-				System.out.println(dateTo);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

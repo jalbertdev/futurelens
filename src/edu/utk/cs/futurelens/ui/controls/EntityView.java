@@ -52,6 +52,7 @@ public interface EntityView
 	public void addHeader(String header, String display);
 	public void addTerm(String header, String term, int count);
 	public void addTerm(String header, String term, double score);
+	public void addGroupTerm(String header, String term, double score);
 	public void clear(String header);
 	public void clearAll();
 	public ArrayList<String> getHeaders();

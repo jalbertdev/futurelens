@@ -61,57 +61,6 @@ public class TextHandler implements Handler
 	public TextHandler(DataSet parent, String fileName)
 	{
 		dataSet = parent;
-		String path = FutureLens.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String winLoc="";
-        try {
-			winLoc = URLDecoder.decode(path, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-        String name = winLoc + "Dates";
-		File dir = new File(name);
-		if (!dir.exists()) {
-			dir.mkdir();
-		}
-		name = winLoc + "Dates/Dates.txt";
-		if (!(new File(name).exists())) {
-			name = winLoc + "Dates/Dates.txt";
-		}
-		File dateFile=new File(name);
-		if(dateFile.exists()){
-		String dateString="";
-		//read the Date File
-		try (Scanner s = new Scanner(dateFile).useDelimiter("\\Z")) {
-			   dateString = s.next();
-			   s.close();
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		//Split the string
-			String dateFromString=dateString.substring(0,dateString.indexOf("|"));
-			String dateToString=dateString.substring(dateString.indexOf("|")+1,dateString.length());
-		//Format into Date variable
-			DateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-			Date dateFrom, dateTo;
-			System.out.println(dateToString);
-			try {
-				dateFrom = format.parse(dateFromString);
-				dateTo= format.parse(dateToString);
-				this.dataSet.trim(dateFrom, dateTo);
-				System.out.println("Removing Dates Outside of The Range:");
-				System.out.println(dateFrom);
-				System.out.println(dateTo);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
-		}
-		else {
-			System.out.println("Date File not Found!");
-		}
 		
 		// build the list of common words
 		if(commonWords == null)

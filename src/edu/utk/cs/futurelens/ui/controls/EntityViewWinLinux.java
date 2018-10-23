@@ -268,7 +268,7 @@ public class EntityViewWinLinux extends Composite implements EntityView
 		Callback.connect(button, SWT.Selection, this, "onEntityAdd");
 		Callback.connect(label, SWT.MouseUp, this, "onEntityAdd");
 	}
-
+	
 	public Point getTermButtonXY(String header, int index)
 	{
 		if(headers.containsKey(header) != true)
@@ -403,5 +403,47 @@ public class EntityViewWinLinux extends Composite implements EntityView
 	{
 		Rectangle parentExtent = this.getClientArea();
 		ebMain.setBounds(0, 0, parentExtent.width, parentExtent.height);
+	}
+	public void addGroupTerm(String header, String term, double score) {
+		this.addGroupTerm(header, term,(Object) score);
+	}
+	private void addGroupTerm(String header, String term, Object value) 
+	{
+		ExpandItem parent = headers.get(header);
+		
+		if(header == null)
+			return;
+		
+		Composite cmpTerms = (Composite)parent.getControl();
+		
+		Button button = new Button(cmpTerms, SWT.PUSH);
+		button.setText("+");
+		button.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+		
+		Label label = new Label(cmpTerms, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		
+		
+		if((value instanceof Double) && ((Double)value > 0))
+		{
+			DecimalFormat df = new DecimalFormat("0.###");
+			label.setText(term + " (" + df.format(value) + ")");
+		}
+		else
+		{
+			label.setText(term);
+		}
+		
+		cmpTerms.layout(true);
+		parent.setHeight(cmpTerms.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+	
+		button.setData("term", term);
+		button.setData("header", header);
+		
+		label.setData("term", term);
+		label.setData("header", header);
+		
+		Callback.connect(button, SWT.Selection, this, "onEntityAdd");
+		Callback.connect(label, SWT.MouseUp, this, "onEntityAdd");
 	}
 }
