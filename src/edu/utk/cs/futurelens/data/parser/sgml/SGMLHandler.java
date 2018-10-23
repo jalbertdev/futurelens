@@ -71,7 +71,7 @@ public class SGMLHandler implements Handler {
 
 	private int counter=0;
 	
-	
+	private boolean isOver=false;
 	
 	
 	
@@ -147,7 +147,7 @@ public class SGMLHandler implements Handler {
 		// store the entity
 		if (inEntity)
 			entityValue = text;
-		boolean isOver=false;
+	
 		
 		// store the date
 		if (inDateTag) {
@@ -192,9 +192,10 @@ public class SGMLHandler implements Handler {
 
 			inDateTag = false;
 		}
-		/*if(isOver){
+		//skip items outside of date range
+		if(isOver){
 			return;
-		} */
+		} 
 		// add terms to the global dictionary
 		String[] terms = pTerms.split(text.toLowerCase());
 		

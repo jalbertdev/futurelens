@@ -75,8 +75,6 @@ public class ResourceLoader implements DataLoader
 	private DataSet dataSet;
 	
 	//boolean to determine if the dataset is trimmed
-	private volatile boolean isTrimmed=false;
-	
 	//Overrides to make the hashing more efficient
 	@Override
 	public int hashCode() {
@@ -106,58 +104,6 @@ public class ResourceLoader implements DataLoader
 
 	public DataSet getDataSet() 
 	{
-		if(!isTrimmed) {
-			
-			String path = FutureLens.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-	        String winLoc="";
-	        try {
-				winLoc = URLDecoder.decode(path, "UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-	        String name = winLoc + "Dates";
-			File dir = new File(name);
-			if (!dir.exists()) {
-				dir.mkdir();
-			}
-			name = winLoc + "Dates/Dates.txt";
-			if (!(new File(name).exists())) {
-				name = winLoc + "Dates/Dates.txt";
-			}
-			File dateFile=new File(name);
-			if(dateFile.exists()){
-			String dateString="";
-			//read the Date File
-			try (Scanner s = new Scanner(dateFile).useDelimiter("\\Z")) {
-				   dateString = s.next();
-				   s.close();
-				} catch (FileNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			//Split the string
-				String dateFromString=dateString.substring(0,dateString.indexOf("|"));
-				String dateToString=dateString.substring(dateString.indexOf("|")+1,dateString.length());
-			//Format into Date variable
-				DateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
-				Date dateFrom, dateTo;
-				
-				try {
-					dateFrom = format.parse(dateFromString);
-					dateTo= format.parse(dateToString);
-					dataSet.trim(dateFrom, dateTo);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
-			}
-			else {
-				System.out.println("Date File not Found!");
-			}
-			isTrimmed=true;
-		}
 		// only return if the set has been loaded and parsed
 		
 		if(isLoaded && isParsed)
