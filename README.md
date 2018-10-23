@@ -1,4 +1,4 @@
-Including search function and optimized
+Including search function and optimizations and group search
 
 Open Eclipse
 File->Import->General->Existing Projects Into Workspace
