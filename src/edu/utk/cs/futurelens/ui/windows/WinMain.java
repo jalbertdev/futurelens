@@ -46,8 +46,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.ImageInputStream;
@@ -72,12 +79,14 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.CreateUserDict;
 import edu.utk.cs.futurelens.data.DataLoader;
 import edu.utk.cs.futurelens.data.FileLoader;
@@ -111,6 +120,8 @@ public class WinMain implements IWindow {
 	private DataSet dataSet;
 	private Boolean flag = false;
 	private static Dictionary oldDict;
+	//new stuff for date restrictions
+	private DataSet restrictedDataSet;
 
 	private volatile boolean isDialogOpen = false;
 	private volatile boolean isDataSetLoaded = false;
@@ -511,12 +522,12 @@ public class WinMain implements IWindow {
 		// restore the path
 		fd.setFilterPath(Prefs.get(Prefs.DICTIONARY_PATH,
 				Prefs.DICTIONARY_PATH_DEFAULT));
-
+		this.datasetTrim();
 		path = fd.open();
 		if (path != null) {
 			// save this location
 			Prefs.set(Prefs.DICTIONARY_PATH, path);
-
+			
 			try {
 				new DictionaryLoader(dataSet).load(path);
 				// FIXME: clear the entity list here
@@ -546,7 +557,7 @@ public class WinMain implements IWindow {
 
 		// restore the path
 		fd.setFilterPath(Prefs.get(Prefs.GROUP_PATH, Prefs.GROUP_PATH_DEFAULT));
-
+		this.datasetTrim();
 		path = fd.open();
 		if (path != null) {
 			// save this location
@@ -653,7 +664,8 @@ public class WinMain implements IWindow {
 	public void onLoadComplete() {
 		// store the data set
 		dataSet = dataLoader.getDataSet();
-
+		this.datasetTrim();
+		
 		// set up the overview
 		gvOverview.setEnabled(true);
 		gvOverview.setDataSet(dataSet);
@@ -698,6 +710,7 @@ public class WinMain implements IWindow {
 	
 	
 	public void onResetDictionary() {
+		this.datasetTrim();
 		dataSet.setGlobalDict(oldDict);
 		//menuBar.connect(menuBar.createUserDictionary, this, "onCreateUserDictionary");
 		//menuBar.disconnect(menuBar.resetDictionary);	
@@ -707,10 +720,8 @@ public class WinMain implements IWindow {
 
 	public void onCreateUserDictionary() {
 		//if(!flag){
+		this.datasetTrim();
 		CreateUserDict.createUserDictionary(dataSet, parentDisplay);
-		//flag = true;
-		//}
-		//menuBar.disconnect(menuBar.createUserDictionary);
 		showUserDictionary();
 	}
 
@@ -745,7 +756,8 @@ public class WinMain implements IWindow {
 		// do demo stuff
 		Demo.start(this);
 	}
-
+	
+	
 	private void setupTabs() {
 		Display display = FLInterface.getDisplay();
 
@@ -875,5 +887,64 @@ public class WinMain implements IWindow {
 				mb.open();
 			}
 		});
+	}
+	//method to change Date Range
+	public void datasetTrim()   {
+			//Find location of Date file
+		
+		String path = FutureLens.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String winLoc="";
+        try {
+			winLoc = URLDecoder.decode(path, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+        String name = winLoc + "Dates";
+		File dir = new File(name);
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
+		name = winLoc + "Dates/Dates.txt";
+		if (!(new File(name).exists())) {
+			name = winLoc + "Dates/Dates.txt";
+		}
+		File dateFile=new File(name);
+		if(dateFile.exists()){
+		String dateString="";
+		//read the Date File
+		try (Scanner s = new Scanner(dateFile).useDelimiter("\\Z")) {
+			   dateString = s.next();
+			   s.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		//Split the string
+			String dateFromString=dateString.substring(0,dateString.indexOf("|"));
+			String dateToString=dateString.substring(dateString.indexOf("|")+1,dateString.length());
+		//Format into Date variable
+			DateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+			Date dateFrom, dateTo;
+			
+			try {
+				dateFrom = format.parse(dateFromString);
+				dateTo= format.parse(dateToString);
+				this.dataSet.trim(dateFrom, dateTo);
+				System.out.println("Removing Dates Outside of The Range:");
+				System.out.println(dateFrom);
+				System.out.println(dateTo);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
+		else {
+			System.out.println("Date File not Found!");
+		}
+		
+		
+		return;
 	}
 }

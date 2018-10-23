@@ -32,8 +32,16 @@ language governing permissions and limitations under the License.
 package edu.utk.cs.futurelens.ui.windows;
 
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 import java.text.*;
+import java.time.format.DateTimeFormatter;
+
 import javax.swing.*;
 import org.jdatepicker.*;
 import org.jdatepicker.impl.JDatePanelImpl;
@@ -50,14 +58,18 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.swt.widgets.Text;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.Stoplist;
+import edu.utk.cs.futurelens.data.DateRange;
 import edu.utk.cs.futurelens.ui.Callback;
 import edu.utk.cs.futurelens.ui.Consts;
 import edu.utk.cs.futurelens.ui.FLInterface;
@@ -254,11 +266,57 @@ public class WinPreferences implements IWindow {
 		label.setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, false, 1, 1));
 		
 		//DateDropdown
-		DateTime dateFrom = new DateTime(comp, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
-		dateFrom.setDate(2007, 0, 1);
+		final DateTime dateFrom = new DateTime(comp, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
+		final DateTime dateTo = new DateTime(comp, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
 		
-		DateTime dateTo = new DateTime(comp, SWT.BORDER | SWT.DATE | SWT.DROP_DOWN);
-		dateFrom.setDate(2020, 0, 1);
-		
+		Button button = new Button(shell, SWT.NONE);
+	    button.setText("Click To Set Date Range");
+	    button.addListener(SWT.Selection, new Listener() {
+	      public void handleEvent(Event e) {
+	        switch (e.type) {
+	        case SWT.Selection:
+	        	this.writeDates(dateFrom,dateTo);
+	          break;
+	          
+	        }
+	      }
+	      //method activated when button is pressed to trim dates and write them to a file
+		private void writeDates(DateTime dateFrom, DateTime dateTo) {
+			//trimming strings
+			String dateFromString = dateFrom.toString().substring(dateFrom.toString().indexOf("{")+1,dateFrom.toString().indexOf("}"));
+	        String dateToString = dateTo.toString().substring(dateTo.toString().indexOf("{")+1,dateTo.toString().indexOf("}"));
+	        //creating path
+	        String path = FutureLens.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+	        String winLoc="";
+	        try {
+				winLoc = URLDecoder.decode(path, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+	        String name = winLoc + "Dates";
+			File dir = new File(name);
+			if (!dir.exists()) {
+				dir.mkdir();
+			}
+			name = winLoc + "Dates/Dates.txt";
+			if (!(new File(name).exists())) {
+				name = winLoc + "Dates/Dates.txt";
+			}
+			
+			//writing string to file
+			FileWriter fstream;
+			try {
+				fstream = new FileWriter(name);
+				BufferedWriter out = new BufferedWriter(fstream);
+				out.write(dateFromString+"|"+dateToString);
+				out.close();
+			} catch (Exception e) {// Catch exception if any
+				System.err.println("Error: " + e.getMessage());
+				e.printStackTrace();
+			}
+			
+		}
+	    });
 	}
+	
 }

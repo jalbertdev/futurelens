@@ -146,6 +146,7 @@ public class GraphView extends Composite
 	public void setDataSet(DataSet dataSet)
 	{
 		this.dataSet = dataSet;
+		
 	}
 	
 	public void setDateRange(DateRange dr)

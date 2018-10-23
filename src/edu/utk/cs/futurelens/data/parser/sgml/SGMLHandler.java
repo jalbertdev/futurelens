@@ -32,13 +32,23 @@ language governing permissions and limitations under the License.
 package edu.utk.cs.futurelens.data.parser.sgml;
 
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.DataElement;
 import edu.utk.cs.futurelens.data.DataSet;
 import edu.utk.cs.futurelens.data.Stoplist;
@@ -54,11 +64,20 @@ public class SGMLHandler implements Handler {
 	private DataElement document;
 	private boolean inEntity;
 	private boolean inDateTag, foundDate, foundYear;
+	private Date dateFrom;
+	private Date dateTo;
 	private static ArrayList<String> commonWords = null;
 	//private static List <String> list;
 
-
+	private int counter=0;
+	
+	
+	
+	
+	
+	
 	public SGMLHandler(DataSet parent, String fileName) {
+		this.createDateRange();
 		dataSet = parent;
 		entityTag = entityName = entityValue = null;
 		inDateTag = false;
@@ -74,12 +93,62 @@ public class SGMLHandler implements Handler {
 
 		this.fileName = fileName;
 	}
-
+	public void createDateRange() {
+		String path = FutureLens.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String winLoc="";
+        try {
+			winLoc = URLDecoder.decode(path, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+        String name = winLoc + "Dates";
+		File dir = new File(name);
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
+		name = winLoc + "Dates/Dates.txt";
+		if (!(new File(name).exists())) {
+			name = winLoc + "Dates/Dates.txt";
+		}
+		File dateFile=new File(name);
+		if(dateFile.exists()){
+		String dateString="";
+		//read the Date File
+		try (Scanner s = new Scanner(dateFile).useDelimiter("\\Z")) {
+			   dateString = s.next();
+			   s.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		//Split the string
+			String dateFromString=dateString.substring(0,dateString.indexOf("|"));
+			String dateToString=dateString.substring(dateString.indexOf("|")+1,dateString.length());
+		//Format into Date variable
+			DateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+			//Date dateFrom, dateTo;
+			
+			try {
+				dateFrom = format.parse(dateFromString);
+				dateTo= format.parse(dateToString);
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+		}
+		else {
+			System.out.println("Date File not Found!");
+		}
+	}
 	public void characters(String text) {
 		// store the entity
 		if (inEntity)
 			entityValue = text;
-
+		boolean isOver=false;
+		
 		// store the date
 		if (inDateTag) {
 			// the date comes first
@@ -95,17 +164,26 @@ public class SGMLHandler implements Handler {
 						|| upperText.startsWith("THU")
 						|| upperText.startsWith("FRI")
 						|| upperText.startsWith("SAT")
-						|| upperText.startsWith("SUN"))
+						|| upperText.startsWith("SUN")) 
+					
 					dateText = text.split("\\s", 2)[1];
+					
 				else
 					dateText = text;
+					
 
 			} else {
 				foundYear = true;
 
 				// year portion
 				try {
+					
 					document.setDate(dateText + ", " + text);
+					
+					if(document.getDate().compareTo(dateFrom) < 0 || document.getDate().compareTo(dateTo) > 0) {
+						isOver=true;
+					}
+					
 				} catch (Exception e) {
 					System.out.println("Failed: " + this.fileName);
 					e.printStackTrace();
@@ -114,10 +192,13 @@ public class SGMLHandler implements Handler {
 
 			inDateTag = false;
 		}
-
+		/*if(isOver){
+			return;
+		} */
 		// add terms to the global dictionary
 		String[] terms = pTerms.split(text.toLowerCase());
-
+		
+		
 		for (String term : terms) {
 			if (term.length() > 0) {
 				String newTerm;
