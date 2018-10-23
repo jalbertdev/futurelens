@@ -194,4 +194,17 @@ public class Group
 		
 		return(allTerms);
 	}
+
+
+	public boolean search(String term) {
+		if (entities.containsKey(term)) {
+			return true;
+		}
+		if (terms.containsKey(term)) {
+			return true;
+		}
+		return false;
+	}
+
+	
 }
