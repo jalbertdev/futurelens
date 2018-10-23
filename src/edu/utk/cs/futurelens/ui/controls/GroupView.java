@@ -216,7 +216,6 @@ public class GroupView extends Composite
 			txtSearch.dispose();
 			cmpFilter.dispose();
 		}
-		
 		entityView.addHeader(Consts.ENTITIES_HEADER_TEXT);
 		entityView.addHeader(Consts.TERMS_HEADER_TEXT);
 		
