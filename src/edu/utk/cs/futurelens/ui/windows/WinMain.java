@@ -132,7 +132,11 @@ public class WinMain implements IWindow {
 	private MenuBar menuBar;
 	private GroupView gvOverview;
 	public ArrayList allCategories = new ArrayList();
-
+	
+	
+	public static ArrayList<Group> groups = new ArrayList<Group>();
+	
+	
 	public WinMain(Shell shell) {
 		parentShell = shell;
 	}
@@ -582,6 +586,7 @@ public class WinMain implements IWindow {
 
 					// do stuff with the group
 					Group group = gl.getGroup();
+					groups.add(group);
 					gv.setDataSet(dataSet);
 					gv.setGroup(group);
 					/*

@@ -112,4 +112,7 @@ public class SearchResults
 		
 		return(entries);
 	}
+	public boolean isEmpty() {
+		return results.isEmpty();
+	}
 }
