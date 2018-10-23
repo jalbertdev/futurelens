@@ -1,4 +1,4 @@
-Including search function and optimized
+Including search function and optimizations, added group search, and made the group search "more pretty"
 
 Open Eclipse
 File->Import->General->Existing Projects Into Workspace

@@ -14,6 +14,8 @@ import java.util.Scanner;
 import java.util.Vector;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -46,6 +48,8 @@ public class GroupSearch  {
 	 private ArrayList<edu.utk.cs.futurelens.data.group.Group> groups = new ArrayList<edu.utk.cs.futurelens.data.group.Group>();
 	 private ArrayList<Integer> resultIndex = new ArrayList<Integer>();
 	 private ArrayList<Double> resultValue = new ArrayList<Double>();
+	 public static CTabFolder tabs;
+	 
 	 
 	 public GroupSearch() {
 		 this.setGroups();
@@ -53,6 +57,7 @@ public class GroupSearch  {
 	  void setGroups() {
 		 groups=WinMain.groups;
 	 }
+	
 	 SearchResults search(String term) {
 		 this.setGroups();
 		 SearchResults results = new SearchResults();
@@ -66,8 +71,9 @@ public class GroupSearch  {
 		 }
 		 return results;
 	 }
-	int getGroup(int i) {
-		 return resultIndex.get(i);
+	String getGroup(int i) {
+		String result=WinMain.groupNames.get(i);
+		 return result;
 	 }
 	double getValue(int i) {
 		return resultValue.get(i);

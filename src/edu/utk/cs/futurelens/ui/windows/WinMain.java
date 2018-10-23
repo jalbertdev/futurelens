@@ -135,7 +135,8 @@ public class WinMain implements IWindow {
 	
 	
 	public static ArrayList<Group> groups = new ArrayList<Group>();
-	
+	public static CTabFolder tabs;
+	public static ArrayList<String> groupNames =new ArrayList<String>();
 	
 	public WinMain(Shell shell) {
 		parentShell = shell;
@@ -583,7 +584,8 @@ public class WinMain implements IWindow {
 
 					item.setText(gl.getGroup().getBaseName());
 					item.setControl(gv);
-
+					
+					groupNames.add(gl.getGroup().getBaseName());
 					// do stuff with the group
 					Group group = gl.getGroup();
 					groups.add(group);
@@ -644,7 +646,7 @@ public class WinMain implements IWindow {
 					gc.fillRectangle(0, 0, 20, 20);
 					gc.dispose();
 					item.setImage(image);
-
+					tabs=tfGroups;
 					// show the new tab
 					tfGroups.setSelection(item);
 				} catch (Exception e) {

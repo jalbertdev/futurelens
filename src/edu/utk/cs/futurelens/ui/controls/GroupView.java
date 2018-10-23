@@ -278,7 +278,7 @@ public class GroupView extends Composite
 			//Group Search Method
 			if(cmbSort.getSelectionIndex()==3) {
 				for(int i=0;i<groupsearch.length();i++) {
-					searchView.addTerm(Consts.SEARCH_RESULTS_HEADER_TEXT,"Group "+groupsearch.getGroup(i)+": "+txtSearch.getText() , groupsearch.getValue(i));
+					searchView.addGroupTerm(Consts.SEARCH_RESULTS_HEADER_TEXT,groupsearch.getGroup(i)+": "+txtSearch.getText() , groupsearch.getValue(i));
 				}
 				
 			} 
