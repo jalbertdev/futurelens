@@ -31,11 +31,21 @@ language governing permissions and limitations under the License.
 
 package edu.utk.cs.futurelens.data;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Hashtable;
+import java.util.Locale;
+import java.util.Scanner;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.parser.ParseException;
 import edu.utk.cs.futurelens.data.parser.sgml.SGMLException;
 import edu.utk.cs.futurelens.data.parser.sgml.SGMLHandler;
@@ -64,6 +74,7 @@ public class ResourceLoader implements DataLoader
 	// the newly minted data set
 	private DataSet dataSet;
 	
+	//boolean to determine if the dataset is trimmed
 	//Overrides to make the hashing more efficient
 	@Override
 	public int hashCode() {
@@ -94,6 +105,7 @@ public class ResourceLoader implements DataLoader
 	public DataSet getDataSet() 
 	{
 		// only return if the set has been loaded and parsed
+		
 		if(isLoaded && isParsed)
 			return dataSet;
 		

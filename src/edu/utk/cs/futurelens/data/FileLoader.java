@@ -34,15 +34,23 @@ package edu.utk.cs.futurelens.data;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Scanner;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -53,6 +61,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.parser.ParseException;
 import edu.utk.cs.futurelens.data.parser.sgml.SGMLException;
 import edu.utk.cs.futurelens.data.parser.sgml.SGMLHandler;
@@ -73,6 +82,7 @@ public class FileLoader implements DataLoader {
 	private volatile boolean isOperationInProgress;
 	private volatile boolean isLoaded;
 	private volatile boolean isParsed;
+	private boolean isTrimmed=false;
 	private final int NUM_THREAD = Runtime.getRuntime().availableProcessors() * 2; // Play With this number to try and find
 										// the best performance
 										// Runtime.getRuntime().availableProcessors()
@@ -90,6 +100,7 @@ public class FileLoader implements DataLoader {
 	
 	public DataSet getDataSet() {
 		// only return if the set has been loaded and parsed
+		
 		if (isLoaded && isParsed)
 			return dataSet;
 

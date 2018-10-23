@@ -32,8 +32,18 @@ language governing permissions and limitations under the License.
 package edu.utk.cs.futurelens.data.dictionary;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Scanner;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.DataSet;
 import edu.utk.cs.futurelens.data.Loader;
 
@@ -51,6 +61,7 @@ public class DictionaryLoader implements Loader
 		// load the dictionary file
 		BufferedReader reader = new BufferedReader(new FileReader(path));
 		String line, term;
+		
 		Dictionary dict = dataSet.getGlobalDict();
 		Dictionary newDict = new Dictionary();
 		

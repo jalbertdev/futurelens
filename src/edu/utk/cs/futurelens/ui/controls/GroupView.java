@@ -77,6 +77,7 @@ import edu.utk.cs.futurelens.ui.events.LegendRemovedListener;
  */
 public class GroupView extends Composite
 {	
+	
 	private DataSet dataSet;
 	private Group group;
 	private SearchResults searchResults;
@@ -89,7 +90,6 @@ public class GroupView extends Composite
 	private final Color colorLeftPane;
 	private DocumentBlockSet blockSet;
 	private LegendSet legendSet;
-	
 	private DocumentView docView;
 	private EntityView entityView;
 	private EntityView searchView;
@@ -106,6 +106,10 @@ public class GroupView extends Composite
 	private final String sortAlpha = "alphabetical";
 	private final String sortFreq = "frequency";
 	private final String sortLength = "length";
+	private final String sortGroup="group";
+	
+	private int groupList=0;
+	GroupSearch groupsearch=new GroupSearch();
 	
 	public GroupView(Composite parent, int style)
 	{
@@ -166,7 +170,8 @@ public class GroupView extends Composite
 			cmbSort.select(1);
 		else if(lMethod.equals(sortLength))
 			cmbSort.select(2);
-		
+		else if(lMethod.equals(sortGroup))
+			cmbSort.select(3);
 		onSort();
 	}
 	
@@ -216,7 +221,6 @@ public class GroupView extends Composite
 			txtSearch.dispose();
 			cmpFilter.dispose();
 		}
-		
 		entityView.addHeader(Consts.ENTITIES_HEADER_TEXT);
 		entityView.addHeader(Consts.TERMS_HEADER_TEXT);
 		
@@ -271,8 +275,17 @@ public class GroupView extends Composite
 		{
 			ArrayList<String>results = searchResults.sort(sortMethod);
 			
+			//Group Search Method
+			if(cmbSort.getSelectionIndex()==3) {
+				for(int i=0;i<groupsearch.length();i++) {
+					searchView.addGroupTerm(Consts.SEARCH_RESULTS_HEADER_TEXT,groupsearch.getGroup(i)+": "+txtSearch.getText() , groupsearch.getValue(i));
+				}
+				
+			} 
+			else{
 			for(String s : results)
 				searchView.addTerm(Consts.SEARCH_RESULTS_HEADER_TEXT, s, searchResults.get(s));
+			}
 		}
 	}
 	
@@ -423,8 +436,13 @@ public class GroupView extends Composite
 		if(txtSearch.getText().length() == 0)
 			return;
 		
+		if(cmbSort.getSelectionIndex()==3){
+
+			searchResults=groupsearch.search(txtSearch.getText());
+		}
+		else {
 		searchResults = dataSet.getGlobalDict().searchTerms(txtSearch.getText());
-		
+		}
 		searchView.clearAll();
 		
 		// restore visibility
@@ -461,6 +479,9 @@ public class GroupView extends Composite
 			sortMethod = SortMethod.LENGTH;
 			sortValue = sortLength;
 			break;
+		case 3:
+			sortMethod=SortMethod.ALPHABETICAL;
+			sortValue=sortGroup;
 		default:
 			return;
 		}
@@ -597,7 +618,7 @@ public class GroupView extends Composite
 	{
 		GridLayout layout;
 		Label label;
-		
+		System.out.println("building controls");
 		// set up the main container form
 		frmMain = new SashForm(this, SWT.HORIZONTAL);
 		frmMain.setLayout(new FillLayout());
@@ -656,6 +677,7 @@ public class GroupView extends Composite
 			cmbSort.add("alphabetically");
 			cmbSort.add("by frequency");
 			cmbSort.add("by length");
+			cmbSort.add("Group Search");
 			cmbSort.select(0);
 			
 			eitem.setText("Search");

@@ -31,8 +31,18 @@ language governing permissions and limitations under the License.
 
 package edu.utk.cs.futurelens.data.parser.text;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Scanner;
 
+import edu.utk.cs.futurelens.FutureLens;
 import edu.utk.cs.futurelens.data.DataElement;
 import edu.utk.cs.futurelens.data.DataSet;
 import edu.utk.cs.futurelens.data.Stoplist;
